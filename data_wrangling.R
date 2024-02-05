@@ -3,16 +3,14 @@ library(here)
 library(janitor)
 
 core_data <- read_csv(here("data/cg1CoreData.csv")) |>
-  tidy_names() |>
   select(-contains(c("1996", "1997", "1998", "1999", "2000", "2001", "2002", "2003",
                             "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020",
                             "2021", "2022")))
 
-insect_data <- read_csv(here("data/cg1PlantMeasureInsectsForKM.csv")) |>
-  tidy_names()
+insect_data <- read_csv(here("data/cg1PlantMeasureInsectsForKM.csv")) 
 
 awful_join <- insect_data |>
-  left_join(core_data , by = c("cgPlaId" , "row" , "pos")) |>
+  left_join(core_data , by = c("cgPlaId" , "row" , "pos")) 
 
 data_2004 <- awful_join |>
   filter(measureYr == 2004) |>
@@ -20,7 +18,11 @@ data_2004 <- awful_join |>
   rename(ld = ld2004 ,
          fl = fl2004 ,
          hdCt = hdCt2004 ,
-         achCtt = achCt2004)
+         achCt = achCt2004) |>
+  mutate(ld = factor(ld) ,
+         fl = factor(fl) ,
+         hdCt = as.numeric(hdCt) ,
+         achCt = as.numeric(hdCt))
 
 data_2005 <- awful_join |>
   filter(measureYr == 2005) |>
@@ -28,7 +30,11 @@ data_2005 <- awful_join |>
   rename(ld = ld2005 ,
          fl = fl2005 ,
          hdCt = hdCt2005 ,
-         achCtt = achCt2005)
+         achCt = achCt2005) |>
+  mutate(ld = factor(ld) ,
+         fl = factor(fl) ,
+         hdCt = as.numeric(hdCt) ,
+         achCt = as.numeric(hdCt))
 
 data_2006 <- awful_join |>
   filter(measureYr == 2006) |>
@@ -36,7 +42,9 @@ data_2006 <- awful_join |>
   rename(ld = ld2006 ,
          fl = fl2006 ,
          hdCt = hdCt2006 ,
-         achCtt = achCt2006)
+         achCt = achCt2006) |>
+  mutate(ld = factor(ld) ,
+         fl = factor(fl))
 
 data_2007 <- awful_join |>
   filter(measureYr == 2007) |>
@@ -44,7 +52,9 @@ data_2007 <- awful_join |>
   rename(ld = ld2007 ,
          fl = fl2007 ,
          hdCt = hdCt2007 ,
-         achCtt = achCt2007)
+         achCt = achCt2007) |>
+  mutate(ld = factor(ld) ,
+         fl = factor(fl))
 
 data_2008 <- awful_join |>
   filter(measureYr == 2008) |>
@@ -52,7 +62,9 @@ data_2008 <- awful_join |>
   rename(ld = ld2008 ,
          fl = fl2008 ,
          hdCt = hdCt2008 ,
-         achCtt = achCt2008)
+         achCt = achCt2008) |>
+  mutate(ld = factor(ld) ,
+         fl = factor(fl))
 
 data_2009 <- awful_join |>
   filter(measureYr == 2009) |>
@@ -60,7 +72,9 @@ data_2009 <- awful_join |>
   rename(ld = ld2009 ,
          fl = fl2009 ,
          hdCt = hdCt2009 ,
-         achCtt = achCt2009)
+         achCt = achCt2009)|>
+  mutate(ld = factor(ld) ,
+         fl = factor(fl))
 
 data_2010 <- awful_join |>
   filter(measureYr == 2010) |>
@@ -68,7 +82,9 @@ data_2010 <- awful_join |>
   rename(ld = ld2010 ,
          fl = fl2010 ,
          hdCt = hdCt2010 ,
-         achCtt = achCt2010)
+         achCt = achCt2010) |>
+  mutate(ld = factor(ld) ,
+         fl = factor(fl))
 
 data_2011 <- awful_join |>
   filter(measureYr == 2011) |>
@@ -76,7 +92,9 @@ data_2011 <- awful_join |>
   rename(ld = ld2011 ,
          fl = fl2011 ,
          hdCt = hdCt2011 ,
-         achCtt = achCt2011)
+         achCt = achCt2011) |>
+  mutate(ld = factor(ld) ,
+         fl = factor(fl))
 
 data_2012 <- awful_join |>
   filter(measureYr == 2012) |>
@@ -84,9 +102,11 @@ data_2012 <- awful_join |>
   rename(ld = ld2012 ,
          fl = fl2012 ,
          hdCt = hdCt2012 ,
-         achCt = achCt2012)
+         achCt = achCt2012) |>
+  mutate(ld = factor(ld) ,
+         fl = factor(fl))
 
-semi_usable_data <- rbind(data_2004 , data_2005 , data_2006 , data_2007 , data_2008 , 
+semi_usable_data <- bind_rows(data_2004 , data_2005 , data_2006 , data_2007 , data_2008 , 
                           data_2009 , data_2010 , data_2011 , data_2012) |>
   clean_names() 
 
@@ -110,8 +130,15 @@ semi_usable_data <- semi_usable_data |>
          spittle = factor(spittle) ,
          wht_fuzzy = factor(wht_fuzzy) ,
          wht_scary = factor (wht_scary) , 
-         other_note = factor(other_note) ,
-         ld = factor(ld) ,
-         fl = factor(fl))
+         other_note = factor(other_note))
+semi_usable_data$wrinkled_lvs_pres <- as.factor(ifelse(is.na(semi_usable_data$wrinkled_lvs_pres), 0,
+                                                       semi_usable_data$wrinkled_lvs_pres))
+levels(semi_usable_data$wrinkled_lvs_pres) <- c("0", "1")
+
+fl_data <- semi_usable_data |>
+  filter(fl == 1)
 
 write_csv(semi_usable_data , here("data/semi_usable_data.csv"))
+write_csv(fl_data , here("data/fl_data.csv"))
+
+

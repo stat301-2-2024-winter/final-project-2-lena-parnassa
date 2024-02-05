@@ -1,0 +1,96 @@
+---
+title: "Progress Memo 1"
+subtitle: |
+  | Final Project 
+  | Data Science 2 with R (STAT 301-2)
+author: "Lena Parnassa"
+date: "2/4/2024"
+
+format:
+  html:
+    toc: true
+    embed-resources: true
+    
+execute:
+  echo: false
+  warning: false
+
+from: markdown+emoji 
+reference-location: margin
+citation-location: margin
+---
+
+
+
+::: {.callout-tip icon=false}
+
+## Github Repo Link
+
+[https://github.com/stat301-2-2024-winter/final-project-2-lena-parnassa](https://github.com/stat301-2-2024-winter/final-project-2-lena-parnassa)
+
+:::
+```{r , echo=FALSE}
+library(tidyverse)
+library(naniar)
+library(here)
+
+fl_data <- read_csv(here("data/fl_data.csv"))
+```
+
+## Data source
+
+This data is from the [Echenacea Project](ttps://echinaceaproject.org/) at the Chicago Botanic Garden, which is the lab I'm working in. Our overall goal is to track to health of echenacea plants across the midwest to use as a proxy of prairie health in the region. 
+
+The specific datasets I'm planning on working with are our [core dataset](https://echinaceaproject.org/datasets/expt1-core/), which includes a few basic metrics recorded annually for each plant in our largest experimental plot, and a datset on [insect damage](https://echinaceaproject.org/datasets/km-aphid-abundance-and-plant-damage-2004-2012/) to the plants in the garden in specific observation years.
+
+## Why this data
+
+I'm an Environmental Science major and the whole reason I wanted to do the Data Science minor was to have a better understanding of the data involved in the field. This project would be a great opportunity for me to apply the understanding I’ve gained so far, and see where the gaps in my knowledge are so I know what I need to improve on.
+
+## Target Variable Analysis 
+The variable I want to analyze is achene count. Achenes are small fruits produced by echinace plants, and a healthy flowering head can easily produce upwards of 100 achenes. Effectively counting them is a time and labor intensive process, and proper processing of all of the heads produced in a given year usually isn't completed for a year afterwards. I filtered my dataset to only include plants with flowering heads in a given year, as the alternative (basal or dead plants) are incapable of producing achenes.
+
+This is what the distribution looks like without any transformations:
+```{r , echo=FALSE}
+fl_data |>
+  filter(ach_ct >= 0) |>
+  #values of -9999 are sometimes used for N/A values which is why I included this step
+  ggplot(aes(ach_ct)) +
+  geom_density() +
+  theme_minimal()
+```
+There are a few outlier plants with many heads that skew the distribution rightwards, but manually going through the data all of their values seem plausible so I left them in.
+
+Running a log transformation makes the density plot look weirder, so I'll have to come up with some other way to transform the data before starting modeling:
+```{r , echo=FALSE}
+fl_data |>
+  filter(ach_ct >= 0) |>
+  ggplot(aes(log(ach_ct))) +
+  geom_density() +
+  theme_minimal()
+```
+
+
+## Data quality & complexity check
+My data has 2870 observations of 43 variables, 35 of which initially seem likel they could be predictors.
+
+A `mis_var_summary()` on my data returns the following result:
+```{r , echo=FALSE}
+miss_table <- miss_var_summary(fl_data) |>
+  filter(n_miss != 0)
+miss_names <- miss_table |>
+  pull(variable)
+
+miss_summary <- fl_data |>
+  select(all_of(miss_names)) |>
+  miss_var_summary() |>
+  knitr::kable()
+
+miss_summary
+```
+Only 5 of my variables have missingness above 10%: `insects_note`, `longest_cauline_lf`, `basal_rosette_ct`, `insects`, and `flowering_rosette_ct`. The variable `insects_note` is only used if a plant has an insect found that can't be accurately described by another variable in the dataset so it's a good thing its missingness is that high. Similarly `insects` is a text variable naming any insects found in/on the plant, so if there aren't any insects on a specific plant it will be N/A. 
+
+The other three variables with high missingness all relate to vegetative mass and it's somewhat annoying that they are missing at this level, but there are other variables in the dataset that could also be proxies for vegatative mass (e.g `longest_basal_lf` , `min_hd_height` , `max_hd_height` , `hdct` , and `basal_lf_count`). Additionally, because not every plant has cauline leafs or basal/flowering rosettes, it is possible in many of these cases  N/A values are being used in place of 0 but I don't want to say for certain that's what's happening here.
+
+## Potential data issues
+I don't know how much of the variance in achene count can be explained by insect presence alone. While it's likely a factor, I would be surprised if it's a more important one than weather patterns and general growing conditions. Having data from multiple years should help prevent overfiting issues, but I'm unsure how accurate any model I can make would be with the data I'm currently working with. If everything I make ends up being more innacurate than I'd like I can find some weather data from [NOAA](https://www.ncei.noaa.gov/access/monitoring/climate-at-a-glance/county/mapping) to join to what I have, but I'll cross that bridge when I get to it.

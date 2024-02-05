@@ -3,8 +3,8 @@ title: "Progress Memo 1"
 subtitle: |
   | Final Project 
   | Data Science 2 with R (STAT 301-2)
-author: "YOUR NAME"
-date: today
+author: "Lena Parnassa"
+date: "2/4/2024"
 
 format:
   html:
@@ -20,47 +20,46 @@ reference-location: margin
 citation-location: margin
 ---
 
-::: {.callout-important}
-## Memo format
 
-Like all other submissions for this course, we expect the memo to be neat and well organized. This a template to get you started. 
-
-You should make this document your own. To help with this we have added a date to the yaml above (good whenever writing memos). You should remove this block when making this document your own.
-
-:::
 
 ::: {.callout-tip icon=false}
 
 ## Github Repo Link
 
-To link to your github **repo**sitory, appropriately edit the example link below. Meaning replace `https://your-github-repo-url` with your github repo url. Suggest verifying the link works before submitting.
-
-[https://your-github-repo-url](https://your-github-repo-url)
+[https://github.com/stat301-2-2024-winter/final-project-2-lena-parnassa](https://github.com/stat301-2-2024-winter/final-project-2-lena-parnassa)
 
 :::
+```{r , echo=FALSE}
+library(tidyverse)
+library(naniar)
+library(here)
 
-::: {.callout-warning}
-GitHub (free account) cannot store large files. If you try to commit and push a large dataset you will have an ERROR! Any file over 100 MB (100,000 KB) needs to be added to the `.gitignore` file BEFORE committing.
-
-**We may need to do that for files in your final project!**
-:::
+joined_data <- read_csv(here("data/semi_usable_data.csv"))
+```
 
 ## Data source
 
-Blah blah blah^[an example of footnote --- [content in margins](https://quarto.org/docs/blog/posts/2022-02-17-advanced-layout/)]
+This data is from the lab I'm working in^[https://echinaceaproject.org/]. The specific datasets I'm planning on working with are our [core dataset](https://echinaceaproject.org/datasets/expt1-core/), which includes a few basic metrics recorded annually for each plant in our largest experimental plot, and a datset on [insect damage](https://echinaceaproject.org/datasets/km-aphid-abundance-and-plant-damage-2004-2012/) to the plants in the garden in specific observation years.
 
 ## Why this data
 
-Blah blah blah^[another footnote]
+I'm an Environmental Science major and the whole reason I wanted to do the Data Science minor was to have a better understanding of the data involved in the field. This project would be a great opportunity for me to apply the understanding I’ve gained so far, and see where the gaps in my knowledge are so I know what I need to improve on.
 
 ## Data quality & complexity check
+```{r , echo=FALSE}
+miss_table <- miss_var_summary(joined_data) |>
+  filter(n_miss != 0)
+miss_names <- miss_table |>
+  pull(variable)
 
-Blah blah blah
+miss_summary <- joined_data |>
+  select(all_of(miss_names)) |>
+  miss_var_summary() |>
+  knitr::kable()
+
+miss_summary
+```
+## Target Variable Analysis 
 
 ## Potential data issues
 
-Blah blah blah
-
-## Misc
-
-Blah Blah

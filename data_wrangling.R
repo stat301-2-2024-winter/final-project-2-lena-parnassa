@@ -1,0 +1,117 @@
+library(tidyverse)
+library(here)
+library(janitor)
+
+core_data <- read_csv(here("data/cg1CoreData.csv")) |>
+  tidy_names() |>
+  select(-contains(c("1996", "1997", "1998", "1999", "2000", "2001", "2002", "2003",
+                            "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020",
+                            "2021", "2022")))
+
+insect_data <- read_csv(here("data/cg1PlantMeasureInsectsForKM.csv")) |>
+  tidy_names()
+
+awful_join <- insect_data |>
+  left_join(core_data , by = c("cgPlaId" , "row" , "pos")) |>
+
+data_2004 <- awful_join |>
+  filter(measureYr == 2004) |>
+  select(-contains(c("2005", "2006", "2007","2008", "2009", "2010", "2011", "2012"))) |>
+  rename(ld = ld2004 ,
+         fl = fl2004 ,
+         hdCt = hdCt2004 ,
+         achCtt = achCt2004)
+
+data_2005 <- awful_join |>
+  filter(measureYr == 2005) |>
+  select(-contains(c("2004", "2006", "2007","2008", "2009", "2010", "2011", "2012"))) |>
+  rename(ld = ld2005 ,
+         fl = fl2005 ,
+         hdCt = hdCt2005 ,
+         achCtt = achCt2005)
+
+data_2006 <- awful_join |>
+  filter(measureYr == 2006) |>
+  select(-contains(c("2005", "2004", "2007","2008", "2009", "2010", "2011", "2012"))) |>
+  rename(ld = ld2006 ,
+         fl = fl2006 ,
+         hdCt = hdCt2006 ,
+         achCtt = achCt2006)
+
+data_2007 <- awful_join |>
+  filter(measureYr == 2007) |>
+  select(-contains(c("2005", "2006", "2004","2008", "2009", "2010", "2011", "2012"))) |>
+  rename(ld = ld2007 ,
+         fl = fl2007 ,
+         hdCt = hdCt2007 ,
+         achCtt = achCt2007)
+
+data_2008 <- awful_join |>
+  filter(measureYr == 2008) |>
+  select(-contains(c("2005", "2006", "2007","2004", "2009", "2010", "2011", "2012"))) |>
+  rename(ld = ld2008 ,
+         fl = fl2008 ,
+         hdCt = hdCt2008 ,
+         achCtt = achCt2008)
+
+data_2009 <- awful_join |>
+  filter(measureYr == 2009) |>
+  select(-contains(c("2005", "2006", "2007","2008", "2004", "2010", "2011", "2012"))) |>
+  rename(ld = ld2009 ,
+         fl = fl2009 ,
+         hdCt = hdCt2009 ,
+         achCtt = achCt2009)
+
+data_2010 <- awful_join |>
+  filter(measureYr == 2010) |>
+  select(-contains(c("2005", "2006", "2007","2008", "2009", "2004", "2011", "2012"))) |>
+  rename(ld = ld2010 ,
+         fl = fl2010 ,
+         hdCt = hdCt2010 ,
+         achCtt = achCt2010)
+
+data_2011 <- awful_join |>
+  filter(measureYr == 2011) |>
+  select(-contains(c("2005", "2006", "2007","2008", "2009", "2010", "2004", "2012"))) |>
+  rename(ld = ld2011 ,
+         fl = fl2011 ,
+         hdCt = hdCt2011 ,
+         achCtt = achCt2011)
+
+data_2012 <- awful_join |>
+  filter(measureYr == 2012) |>
+  select(-contains(c("2005", "2006", "2007","2008", "2009", "2010", "2011", "2004"))) |>
+  rename(ld = ld2012 ,
+         fl = fl2012 ,
+         hdCt = hdCt2012 ,
+         achCt = achCt2012)
+
+semi_usable_data <- rbind(data_2004 , data_2005 , data_2006 , data_2007 , data_2008 , 
+                          data_2009 , data_2010 , data_2011 , data_2012) |>
+  clean_names() 
+
+semi_usable_data <- semi_usable_data |>
+  mutate(pla_status_desc = factor(pla_status_desc) ,
+         # go through and figure out what the levels are bc there shouldn't be 13 
+         wrinkled_lvs_pres = factor(wrinkled_lvs_pres) ,
+         ant1 = factor(ant1) ,
+         ant2to10 = factor(ant2to10) ,
+         ant_gt10 = factor(ant_gt10) ,
+         aphid1 = factor(aphid1) ,
+         aphid2to10 = factor(aphid2to10) ,
+         aphid11to80 = factor(aphid11to80) ,
+         aphid_gt80 = factor(aphid_gt80) ,
+         lf_miner = factor(lf_miner) ,
+         lf_rolled = factor(lf_rolled) ,
+         pupa = factor(pupa) ,
+         egg_sac = factor(egg_sac) ,
+         beetle = factor(beetle) ,
+         grasshopper = factor(grasshopper) ,
+         spittle = factor(spittle) ,
+         wht_fuzzy = factor(wht_fuzzy) ,
+         wht_scary = factor (wht_scary) , 
+         other_note = factor(other_note) ,
+         ld = factor(ld) ,
+         fl = factor(fl))
+
+write_csv(semi_usable_data , here("data/semi_usable_data.csv"))

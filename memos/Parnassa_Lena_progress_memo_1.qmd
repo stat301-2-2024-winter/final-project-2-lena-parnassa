@@ -72,7 +72,7 @@ fl_data |>
 
 
 ## Data quality & complexity check
-My data has 2870 observations of 43 variables, 35 of which initially seem likel they could be predictors.
+My data has 2870 observations of 43 variables, 35 of which initially seem like they could be predictors.
 
 A `mis_var_summary()` on my data returns the following result:
 ```{r , echo=FALSE}

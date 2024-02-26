@@ -1,7 +1,15 @@
+# load packages ----
 library(tidyverse)
+library(tidymodels)
 library(here)
 library(janitor)
+library(forcats)
 
+# handle common conflicts
+tidymodels_prefer()
+
+
+### load in datasets
 core_data <- read_csv(here("data/cg1CoreData.csv")) |>
   select(-contains(c("1996", "1997", "1998", "1999", "2000", "2001", "2002", "2003",
                             "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020",
@@ -9,6 +17,8 @@ core_data <- read_csv(here("data/cg1CoreData.csv")) |>
 
 insect_data <- read_csv(here("data/cg1PlantMeasureInsectsForKM.csv")) 
 
+
+### work to join/tidy datasets
 awful_join <- insect_data |>
   left_join(core_data , by = c("cgPlaId" , "row" , "pos")) 
 
@@ -133,12 +143,38 @@ semi_usable_data <- semi_usable_data |>
          other_note = factor(other_note))
 semi_usable_data$wrinkled_lvs_pres <- as.factor(ifelse(is.na(semi_usable_data$wrinkled_lvs_pres), 0,
                                                        semi_usable_data$wrinkled_lvs_pres))
-levels(semi_usable_data$wrinkled_lvs_pres) <- c("0", "1")
 
+
+### clean up data for project
 fl_data <- semi_usable_data |>
-  filter(fl == 1)
+  filter(fl == 1) |>
+  filter(ach_ct >= 0) |>
+  mutate(across(c(longest_basal_lf, longest_cauline_lf, basal_lf_ct), ~na_if(., -777)))
 
+skimr::skim(fl_data)
+
+
+set.seed(1995)
+#initial split:
+fl_split <- fl_data |>
+  initial_split(prop = 0.8 , strata = ach_ct)
+
+fl_train <- fl_split |>
+  training()
+fl_test <- fl_split |>
+  testing()
+
+
+# fold
+fl_fold <- vfold_cv(fl_train, v = 5, repeats = 3,
+                          strata = ach_ct)
+
+
+### save everything
+save(fl_train, fl_test, fl_fold , file = here("results/fl_split.rda"))
 write_csv(semi_usable_data , here("data/semi_usable_data.csv"))
 write_csv(fl_data , here("data/fl_data.csv"))
-
+write_rds(fl_split , "data/fl_split.rds")
+write_rds(fl_train , "data/fl_training.rds")
+write_rds(fl_test , "data/fl_testing.rds")
 

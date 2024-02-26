@@ -149,15 +149,25 @@ semi_usable_data$wrinkled_lvs_pres <- as.factor(ifelse(is.na(semi_usable_data$wr
 fl_data <- semi_usable_data |>
   filter(fl == 1) |>
   filter(ach_ct >= 0) |>
-  mutate(across(c(longest_basal_lf, longest_cauline_lf, basal_lf_ct), ~na_if(., -777)))
+  mutate(across(c(longest_basal_lf, longest_cauline_lf, basal_lf_ct), ~na_if(., -777))) |>
+  mutate(any_bug = case_when(
+    !is.na(insects) ~ "1",
+    is.na(insects) ~ "0")) |>
+  mutate(any_bug = as_factor(any_bug)) |>
+  mutate(flowering_rosette_ct = case_when(
+    is.na(flowering_rosette_ct) ~ 0,
+    TRUE ~ flowering_rosette_ct)) |>
+    #im reasonably certain NA values should be 0s, 
+    #the lowest value originally in the dataset is a 1, and manually skimming data showed other values for datapoints with NA values for flowering_rosette_ct are consistent with what is expected for plants without flowering rosettes
+  select(-c(hdct , exp_nm))
+    #variables are duplicates of other columns, I kept the ones with higher completion rates
 
 skimr::skim(fl_data)
-
 
 set.seed(1995)
 #initial split:
 fl_split <- fl_data |>
-  initial_split(prop = 0.8 , strata = ach_ct)
+  initial_split(prop = 0.7 , strata = ach_ct)
 
 fl_train <- fl_split |>
   training()

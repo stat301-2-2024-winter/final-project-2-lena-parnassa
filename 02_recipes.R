@@ -17,8 +17,9 @@ skimr::skim(fl_train)
 
 ## basic recipe
 basic_recipe <- recipe(ach_ct ~ . , data = fl_train) |>
-  step_rm(site_of_origin_pedigree , insects , row  , pos , 
+  step_rm(site_of_origin_pedigree , insects , insects_note , row  , pos , 
           cg_pla_id , basal_rosette_ct , longest_cauline_lf) |>
+  #need to remove some other steps
   step_dummy(all_nominal_predictors()) |>
   step_zv(all_predictors()) |>
   step_impute_knn(all_predictors()) |>
@@ -32,7 +33,7 @@ prep(basic_recipe) |>
 
 ## basic tree recipe
 tree_recipe <- recipe(ach_ct ~ . , data = fl_train) |>
-  step_rm(site_of_origin_pedigree , insects , 
+  step_rm(site_of_origin_pedigree , insects , insects_note ,
           cg_pla_id , basal_rosette_ct , longest_cauline_lf) |>
   step_dummy(all_nominal_predictors() , one_hot = TRUE) |>
   step_zv(all_predictors()) |>

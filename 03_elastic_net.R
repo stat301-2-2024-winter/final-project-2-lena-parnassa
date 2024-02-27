@@ -18,7 +18,7 @@ load(here("results/basic_recipe.rda"))
 
 set.seed(1995)
 # model specifications ----
-lm_mod_1 <-  linear_reg() |> 
+enet_mod_1 <-  linear_reg() |> 
   set_engine("lm") |> 
   set_mode("regression") 
 
@@ -34,5 +34,5 @@ fit_lm_1 <- fit_resamples(
   control = control_resamples(save_workflow = TRUE)
 )
 
-# save results 
-save(fit_lm_1, file = here("results/fit_lm_1.rda"))
+# Save results 
+save(fit_enet_1, file = here("results/fit_enet_1.rda"))

@@ -19,12 +19,14 @@ from: markdown+emoji
 reference-location: margin
 citation-location: margin
 ---
+
 ::: {.callout-tip icon=false}
 
 ## Github Repo Link
 [https://github.com/stat301-2-2024-winter/final-project-2-lena-parnassa](https://github.com/stat301-2-2024-winter/final-project-2-lena-parnassa)
 
 :::
+
 ```{r , echo=FALSE}
 #load libraries
 library(tidyverse)
@@ -38,6 +40,7 @@ tidymodels_prefer()
 #load data
 load(here("results/model_results.rda"))
 ```
+
 
 
 ## Data/Project Description:
@@ -57,12 +60,15 @@ I'm using a linear regression model as my null model, and also using elastic net
 
 ## Fit Demonstration
 So far I've fitted my linear regression and KNN models:
+
 ```{r , echo = FALSE}
 load(here("results/model_results.rda"))
 model_results |>
-kable(digits = c(NA , 2 , 4 , 0))
+knitr::kable(digits = c(NA , 2 , 4 , 0))
 ```
 
+
+## Progress
 
 ## Misc
 I didn't clarify this in my first progress memo but I'm doing a regression problem.

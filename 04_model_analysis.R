@@ -10,7 +10,6 @@ tidymodels_prefer()
 load(here("results/fl_split.rda"))
 load(here("results/basic_recipe.rda"))
 load(here("results/fit_lm_1.rda"))
-load(here("results/fit_enet_1.rda"))
 load(here("results/fit_knn_1.rda"))
 
 #create a workflow set

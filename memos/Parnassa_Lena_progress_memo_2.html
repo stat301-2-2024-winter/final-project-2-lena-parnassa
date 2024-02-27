@@ -3015,7 +3015,6 @@ vertical-align: -.125em;
   <li><a href="#model-types" id="toc-model-types" class="nav-link" data-scroll-target="#model-types">Model Types</a></li>
   </ul></li>
   <li><a href="#fit-demonstration" id="toc-fit-demonstration" class="nav-link" data-scroll-target="#fit-demonstration">Fit Demonstration</a></li>
-  <li><a href="#progress" id="toc-progress" class="nav-link" data-scroll-target="#progress">Progress</a></li>
   <li><a href="#misc" id="toc-misc" class="nav-link" data-scroll-target="#misc">Misc</a></li>
   </ul>
 </nav>
@@ -3078,24 +3077,49 @@ Github Repo Link
 </section>
 <section id="data-splitting" class="level3">
 <h3 class="anchored" data-anchor-id="data-splitting">Data Splitting</h3>
-<p>I split my data with a proportion of 0.7 because its on the smaller side. I did a v-fold cross validation with 5 folds and 3 repeats because my computer is probably not capable of handling much more.</p>
+<p>I split my data with a proportion of 0.7 because its on the smaller side. I did a v-fold cross validation with 5 folds and 3 repeats. While I know that is fewer than would be most appropriate for a dataset of this size, my computer is old and probably not capable of handling much more.</p>
 </section>
 <section id="model-types" class="level3">
 <h3 class="anchored" data-anchor-id="model-types">Model Types</h3>
-<p>I’m using a linear regression model as my null model, and also using elastic net, KNN, random forest, and boosted tree models.</p>
+<p>I’m using a linear regression model as my null model, and also using elastic net, KNN, random forest, and boosted tree models. Each model will be tested on two recipes, one “kitchen sink” recipe that I have already created, and a second recipe with more feature engineering that will be based on the performance of the first recipe. I have designed parametric and non-parametric versions of my first recipe and will do the same when creating the second.</p>
 </section>
 </section>
 <section id="fit-demonstration" class="level2">
 <h2 class="anchored" data-anchor-id="fit-demonstration">Fit Demonstration</h2>
-<p>So far I’ve fitted my linear regression and KNN models</p>
-</section>
-<section id="progress" class="level2">
-<h2 class="anchored" data-anchor-id="progress">Progress</h2>
+<p>So far I’ve defined and fitted my linear regression and KNN models using my kitchen sink recipes:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model Type</th>
+<th style="text-align: right;">RMSE</th>
+<th style="text-align: right;">Standard Error</th>
+<th style="text-align: right;">Num Computations</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">lm_basic</td>
+<td style="text-align: right;">139.97</td>
+<td style="text-align: right;">2.46</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">knn_basic</td>
+<td style="text-align: right;">161.05</td>
+<td style="text-align: right;">3.66</td>
+<td style="text-align: right;">15</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>So far both models have an RMSE that is significantly higher than would be useful. Given the possible values for achene count, I would probably want an RMSE in the 15-25 range in order to be confident my model is generating a relatively accurate estimate. However to get that close I would almost certainly need to included data on factors beyond insect presence. For the purposes of this lab I’m aiming to get RMSE under 50.</p>
 </section>
 <section id="misc" class="level2">
 <h2 class="anchored" data-anchor-id="misc">Misc</h2>
 <p>I didn’t clarify this in my first progress memo but I’m doing a regression problem.</p>
-<p>My <code>03_fit_elastic_net</code> script isn’t running properly and I cant figure out why. If you’re able to take a look at it and give me some suggestions I’d really appreciate it.</p>
 </section>
 
 </main>

@@ -19,12 +19,14 @@ from: markdown+emoji
 reference-location: margin
 citation-location: margin
 ---
+
 ::: {.callout-tip icon=false}
 
 ## Github Repo Link
 [https://github.com/stat301-2-2024-winter/final-project-2-lena-parnassa](https://github.com/stat301-2-2024-winter/final-project-2-lena-parnassa)
 
 :::
+
 ```{r , echo=FALSE}
 #load libraries
 library(tidyverse)
@@ -44,6 +46,7 @@ load(here("results/fit_knn_1.rda"))
 ```
 
 
+
 ## Data/Project Overview:
 I'm looking at data from [The Echinacea Project](https://echinaceaproject.org/) at the Chicago Botanic Garden, which is the lab I'm working in. Specifically, I'm working with our [core dataset](https://echinaceaproject.org/datasets/expt1-core/), and a datset on [insect damage](https://echinaceaproject.org/datasets/km-aphid-abundance-and-plant-damage-2004-2012/). My goal is to predict the achene count. Achenes are small fruits produced by echinacea plants, and a healthy flowering head can easily produce upwards of 100 achenes, which makes counting them a time and labor intensive process. I filtered my datasets to only include plants with flowering heads in a given year, as the alternative (basal or dead plants) are incapable of producing achenes. My cleaned dataset has 2,865 observations of 42 variables.
 
@@ -61,6 +64,7 @@ I'm using a linear regression model as my null model, and also using elastic net
 
 ## Fit Demonstration
 So far I've defined and fitted my linear regression and KNN models using my kitchen sink recipes:
+
 ```{r , echo=FALSE}
 model_results <- as_workflow_set(
   lm_basic = fit_lm_1 ,
@@ -78,6 +82,7 @@ model_results |>
          "Num Computations" = n) |>
 knitr::kable(digits = c(NA , 2 , 2 , 0))
 ```
+
 So far both models have an RMSE that is significantly higher than would be useful. Given the possible values for achene count, I would probably want an RMSE in the 15-25 range in order to be confident my model is generating a relatively accurate estimate. However to get that close I would almost certainly need to included data on factors beyond insect presence. For the purposes of this lab I'm aiming to get RMSE under 50.
 
 ## Misc

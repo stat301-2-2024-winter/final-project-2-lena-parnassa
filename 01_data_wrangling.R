@@ -162,7 +162,14 @@ fl_data <- semi_usable_data |>
   select(-c(hdct , exp_nm))
     #variables are duplicates of other columns, I kept the ones with higher completion rates
 
+
 skimr::skim(fl_data)
+
+fl_data |>
+  ggplot(aes((ach_ct))) +
+  geom_density() +
+  theme_minimal()
+
 
 set.seed(1995)
 #initial split:

@@ -29,7 +29,7 @@ knn_wkflow_1 <- workflow() |>
 # hyperparameter tuning values ----
 knn_parameters <- extract_parameter_set_dials(knn_mod_1) 
 
-knn_grid_1 <- grid_regular(knn_parameters , levels = 5)
+knn_grid_1 <- grid_regular(knn_parameters , levels = 10)
 
 # fit workflows/models ----
 fit_knn_1 <- tune_grid(knn_wkflow_1 ,

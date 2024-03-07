@@ -5,4 +5,6 @@ Stuart said that `pos` should be a centered and made into a quadratic bc the gar
 Site of orgin pedigree seems like it would be an increadibly useful variable however its recorded in such a way that its basically unusable
     -harass stuart about this at some point
 
-figure out how to transform ach_ct, log doesnt work bc there arre too many zeros
+figure out how to transform ach_ct, log doesnt work bc there are too many zeros
+
+why does my elastic net model keep failing!?!?!?! this doesnt seem like the model that should be failing

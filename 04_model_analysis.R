@@ -13,10 +13,12 @@ load(here("results/fit_lm_1.rda"))
 load(here("results/fit_knn_1.rda"))
 load(here("results/fit_bt_1.rda"))
 load(here("results/fit_rf_1.rda"))
+load(here("results/fit_enet_1.rda"))
 
 #create a workflow set
 model_results <- as_workflow_set(
   lm_basic = fit_lm_1 ,
+  enet_basic = fit_enet_1 ,
   knn_basic = fit_knn_1 ,
   bt_basic = fit_bt_1 ,
   rf_basic = fit_rf_1 

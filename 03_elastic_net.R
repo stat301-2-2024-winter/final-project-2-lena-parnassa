@@ -19,9 +19,8 @@ set.seed(1995)
 
 # model specifications ----
 enet_mod_1 <- linear_reg(mode = "regression" ,
-                         alpha = tune(),
-                         lambda = tune(),
-                         standardize = tune()) |> 
+                         penalty = tune(),
+                         mixture = tune()) |> 
   set_engine("glmnet")
 
 # define workflows ----
@@ -30,14 +29,17 @@ enet_wflow_1 <- workflow() |>
   add_recipe(basic_recipe)
 
 # hyperparameter tuning values ----
-enet_parameters <- extract_parameter_set_dials(enet_mod_1)
+enet_parameters <- 
+  extract_parameter_set_dials(enet_mod_1) |>
+  update(penalty = penalty(), mixture = mixture(range = c(0, 1)))
 
-enet_grid <- grid_regular(enet_parameters , levels = 5)
+enet_grid <- 
+  grid_regular(enet_parameters, levels = 5)
 
 # fit workflows/models ----
 fit_enet_1 <- fit_resamples(
   enet_wflow_1,
-  grid = enet_grid
+  grid = enet_grid ,
   resamples = fl_fold,
   control = control_resamples(save_workflow = TRUE)
 )

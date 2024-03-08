@@ -166,7 +166,7 @@ fl_data <- semi_usable_data |>
 skimr::skim(fl_data)
 
 fl_data |>
-  ggplot(aes((ach_ct))) +
+  ggplot(aes(sqrt(ach_ct))) +
   geom_density() +
   theme_minimal()
 
@@ -191,7 +191,7 @@ fl_fold <- vfold_cv(fl_train, v = 5, repeats = 3,
 save(fl_train, fl_test, fl_fold , file = here("results/fl_split.rda"))
 write_csv(semi_usable_data , here("data/semi_usable_data.csv"))
 write_csv(fl_data , here("data/fl_data.csv"))
-write_rds(fl_split , "data/fl_split.rds")
-write_rds(fl_train , "data/fl_training.rds")
-write_rds(fl_test , "data/fl_testing.rds")
+write_rds(fl_split , "data/fl_split.rda")
+write_rds(fl_train , "data/fl_training.rda")
+write_rds(fl_test , "data/fl_testing.rda")
 

@@ -16,33 +16,33 @@ load(here("results/fl_split.rda"))
 load(here("results/basic_recipe.rda"))
 
 set.seed(1995)
-
 # model specifications ----
-enet_mod_1 <- linear_reg(mode = "regression" ,
-                         penalty = tune(),
+enet_mod_1 <- linear_reg(penalty = tune(),
                          mixture = tune()) |> 
   set_engine("glmnet")
+
+enet_parameters <- 
+  parameters(enet_mod_1) |>
+  update(mixture = mixture(range = c(0, 1)) ,
+         penalty = penalty(range = c(0 ,1)))
+         #lower penalties tend to be less-wrong so im going to leave it like that
+
+enet_grid <- 
+  grid_regular(enet_parameters, levels = 5)
 
 # define workflows ----
 enet_wflow_1 <- workflow() |>
   add_model(enet_mod_1) |>
   add_recipe(basic_recipe)
 
-# hyperparameter tuning values ----
-enet_parameters <- 
-  extract_parameter_set_dials(enet_mod_1) |>
-  update(penalty = penalty(), mixture = mixture(range = c(0, 1)))
-
-enet_grid <- 
-  grid_regular(enet_parameters, levels = 5)
-
 # fit workflows/models ----
-fit_enet_1 <- fit_resamples(
-  enet_wflow_1,
-  grid = enet_grid ,
-  resamples = fl_fold,
-  control = control_resamples(save_workflow = TRUE)
-)
+fit_enet_1 <- enet_wflow_1 |>
+  tune_grid(resamples = fl_fold, 
+            grid = enet_grid ,
+            control = control_grid(save_workflow = TRUE))
+
+# summarize results
+enet_mmetrics <- collect_metrics(fit_enet_1)
 
 # Save results 
 save(fit_enet_1, file = here("results/fit_enet_1.rda"))

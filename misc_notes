@@ -8,3 +8,7 @@ Site of orgin pedigree seems like it would be an increadibly useful variable how
 figure out how to transform ach_ct, log doesnt work bc there are too many zeros
 
 why does my elastic net model keep failing!?!?!?! this doesnt seem like the model that should be failing
+
+should measure_year be num, factor, or date???
+
+changes to make in feature engineered recipe: step interact between pos + row, year planted as factor

@@ -43,7 +43,3 @@ fit_rf_1 <- tune_grid(rf_wkflow_1 ,
 
 # write out results (fitted/trained workflows) ----
 save(fit_rf_1 , file = here("results/fit_rf_1.rda"))
-)
-
-# Write out results (fitted/trained workflows)
-save(fit_bt_1, file = here("results/fit_bt_1.rda"))

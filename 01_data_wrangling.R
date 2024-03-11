@@ -159,14 +159,14 @@ fl_data <- semi_usable_data |>
     TRUE ~ flowering_rosette_ct)) |>
     #im reasonably certain NA values should be 0s, 
     #the lowest value originally in the dataset is a 1, and manually skimming data showed other values for datapoints with NA values for flowering_rosette_ct are consistent with what is expected for plants without flowering rosettes
-  select(-c(hdct , exp_nm))
+  select(-c(hdct , exp_nm)) |>
     #variables are duplicates of other columns, I kept the ones with higher completion rates
-
+  mutate(sqrt_ach_ct = as.numeric(sprintf("%.15f", sqrt(ach_ct))))
 
 skimr::skim(fl_data)
 
 fl_data |>
-  ggplot(aes(sqrt(ach_ct))) +
+  ggplot(aes((ach_ct))) +
   geom_density() +
   theme_minimal()
 
@@ -174,7 +174,7 @@ fl_data |>
 set.seed(1995)
 #initial split:
 fl_split <- fl_data |>
-  initial_split(prop = 0.7 , strata = ach_ct)
+  initial_split(prop = 0.7 , strata = sqrt_ach_ct)
 
 fl_train <- fl_split |>
   training()
@@ -184,7 +184,7 @@ fl_test <- fl_split |>
 
 # fold
 fl_fold <- vfold_cv(fl_train, v = 5, repeats = 3,
-                          strata = ach_ct)
+                          strata = sqrt_ach_ct)
 
 
 ### save everything

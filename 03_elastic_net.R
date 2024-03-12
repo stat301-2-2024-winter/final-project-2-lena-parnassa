@@ -41,8 +41,6 @@ fit_enet_1 <- enet_wflow_1 |>
             grid = enet_grid ,
             control = control_grid(save_workflow = TRUE))
 
-# summarize results
-enet_mmetrics <- collect_metrics(fit_enet_1)
-
+enet_wflow_1
 # Save results 
 save(fit_enet_1, file = here("results/fit_enet_1.rda"))

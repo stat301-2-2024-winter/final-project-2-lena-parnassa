@@ -30,9 +30,10 @@ rf_wkflow_1 <- workflow() |>
 
 # hyperparameter tuning values ----
 rf_parameters <- extract_parameter_set_dials(rf_mod_1) |>
-  update(mtry = mtry(range = c(1 , 14)))
+  update(mtry = mtry(range = c(1 , 41)))
+    # update to go higher
 
-rf_grid <- grid_regular(rf_parameters , levels = 5)
+rf_grid <- grid_regular(rf_parameters , levels = 10)
 
 # Fit workflows/models
 fit_rf_1 <- tune_grid(rf_wkflow_1 ,
@@ -43,3 +44,8 @@ fit_rf_1 <- tune_grid(rf_wkflow_1 ,
 
 # write out results (fitted/trained workflows) ----
 save(fit_rf_1 , file = here("results/fit_rf_1.rda"))
+
+#analyse results
+fit_rf_1 |>
+  autoplot(metric = "rmse") +
+  theme_minimal()

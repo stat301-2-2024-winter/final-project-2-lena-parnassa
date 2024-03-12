@@ -33,23 +33,30 @@ prep(basic_recipe) |>
 engineered_recipe <- recipe(sqrt_ach_ct ~ . , data = fl_train) |>
   step_rm(ach_ct , site_of_origin_pedigree , insects , insects_note ,  
           cg_pla_id , basal_rosette_ct , longest_cauline_lf , measure_dt) |>
-  step_interact(step_interact(terms = ~pos:row)) |>
+  step_poly(row, degree = 2) |>
+  step_interact(terms = ~pos:row) |>
     #create coordinate grid
-  step_num2factor(yr_planted) |>
+  step_interact(terms = ~min_head_height:max_head_height) |>
+    #total range of head heights
+  step_interact(terms = ~flowering_rosette_ct:head_ct) |>
+    #ratio of flowering to all heads
+  step_interact(terms = ~longest_basal_lf:basal_lf_ct) |>
+    #additional proxy for vegetative mass
+  step_num2factor(yr_planted , levels = c("1996" , "1997" , "1998" , "1999")) |>
     #may work better as factor
-  mutate(wht_indicator = as.factor(ifelse(wht_fuzzy == 1 | wht_scary == 1, "1", "0"))) |>
+  step_mutate(wht_indicator = as.factor(ifelse(wht_fuzzy == 1 | wht_scary == 1, "1", "0"))) |>
   step_rm(wht_fuzzy, wht_scary) |>
     #i feel like the difference is up to personal interpretation
-  mutate(ant = as.factor(ifelse(ant1 == 1 | ant2to10 == 1 | ant_gt10 == 1 , "1", "0"))) |>
-  mutate(aphid = as.factor(ifelse(aphid1 == 1 | aphid2to10 == 1 | aphid11to80 == 1 |ant_gt80 == 1 , "1", "0"))) |>
-    #i think this one makes sense
+  step_mutate(ant = as.factor(ifelse(ant1 == 1 | ant2to10 == 1 | ant_gt10 == 1 , "1", "0"))) |>
+  step_mutate(aphid = as.factor(ifelse(aphid1 == 1 | aphid2to10 == 1 | aphid11to80 == 1 |ant_gt80 == 1 , "1", "0"))) |>
+    #i think these two make sense
   step_dummy(all_nominal_predictors()) |>
   step_zv(all_predictors()) |>
   step_impute_knn(all_predictors()) |>
   step_normalize(all_numeric_predictors() , all_factor_predictors())
 
 
-prep(basic_recipe) |>
+prep(engineered_recipe) |>
   bake(new_data = NULL)
 
 

@@ -1,3 +1,5 @@
+rm(list = ls())
+
 # load packages ----
 library(tidyverse)
 library(tidymodels)
@@ -116,9 +118,10 @@ data_2012 <- awful_join |>
   mutate(ld = factor(ld) ,
          fl = factor(fl))
 
-semi_usable_data <- bind_rows(data_2004 , data_2005 , data_2006 , data_2007 , data_2008 , 
+semi_usable_data <- bind_rows(data_2005 , data_2006 , data_2007 , data_2008 , 
                           data_2009 , data_2010 , data_2011 , data_2012) |>
   clean_names() 
+#I'm not using data from 2004 because all of its weird
 
 semi_usable_data <- semi_usable_data |>
   mutate(pla_status_desc = factor(pla_status_desc) ,
@@ -149,6 +152,7 @@ semi_usable_data$wrinkled_lvs_pres <- as.factor(ifelse(is.na(semi_usable_data$wr
 fl_data <- semi_usable_data |>
   filter(fl == 1) |>
   filter(ach_ct >= 0) |>
+  filter(hd_ct > 0) |>
   mutate(across(c(longest_basal_lf, longest_cauline_lf, basal_lf_ct), ~na_if(., -777))) |>
   mutate(any_bug = case_when(
     !is.na(insects) ~ "1",
@@ -165,8 +169,14 @@ fl_data <- semi_usable_data |>
 
 skimr::skim(fl_data)
 
+#fl_2004 <- fl_data |>
+  #filter(measure_yr == 2004)
+
+#no_rosette <- fl_data |>
+  #filter(flowering_rosette_ct == 0)
+
 fl_data |>
-  ggplot(aes((ach_ct))) +
+  ggplot(aes(sqrt(ach_ct))) +
   geom_density() +
   theme_minimal()
 
@@ -180,6 +190,13 @@ fl_train <- fl_split |>
   training()
 fl_test <- fl_split |>
   testing()
+
+
+nrow(fl_data[fl_data$ach_ct%in% 0, ])
+nrow(fl_data[fl_data$hd_ct%in% 0, ])
+
+skimr::skim(fl_data)
+
 
 
 # fold

@@ -14,6 +14,11 @@ load(here("results/fl_split.rda"))
 skimr::skim(fl_train)
 
 fl_train |>
+  ggplot(aes((ach_ct))) +
+  geom_histogram(bins = 50) +
+  theme_minimal()
+
+fl_train |>
   ggplot(aes(x = wht_scary)) +
   geom_bar() +
   facet_wrap(~wht_fuzzy) +

@@ -44,6 +44,13 @@ engineered_recipe <- recipe(sqrt_ach_ct ~ . , data = fl_train) |>
     #additional proxy for vegetative mass
   step_num2factor(yr_planted , levels = c("1996" , "1997" , "1998" , "1999")) |>
     #may work better as factor
+  step_mutate(hd_ct = case_when(
+    hd_ct %in% 1:5 ~ as.character(hd_ct),
+    hd_ct %in% 6:9 ~ "6 to 9",
+    hd_ct >= 10 ~ "10+"
+  )) |>
+  step_string2factor(hd_ct) |>
+    #small enough range that it could work as factor
   step_mutate(wht_indicator = as.factor(ifelse(wht_fuzzy == 1 | wht_scary == 1, "1", "0"))) |>
   step_rm(wht_fuzzy, wht_scary) |>
     #i feel like the difference is up to personal interpretation
@@ -80,6 +87,12 @@ engineered_tree_recipe <- recipe(sqrt_ach_ct ~ . , data = fl_train) |>
           cg_pla_id , basal_rosette_ct , longest_cauline_lf , measure_dt) |>
   step_poly(row, degree = 2) |>
   step_num2factor(yr_planted , levels = c("1996" , "1997" , "1998" , "1999")) |>
+  step_mutate(hd_ct = case_when(
+    hd_ct %in% 1:5 ~ as.character(hd_ct),
+    hd_ct %in% 6:9 ~ "6 to 9",
+    hd_ct >= 10 ~ "10+"
+  )) |>
+  step_string2factor(hd_ct) |>
   step_mutate(wht_indicator = as.factor(ifelse(wht_fuzzy == 1 | wht_scary == 1, "1", "0"))) |>
   step_rm(wht_fuzzy, wht_scary) |>
   step_mutate(ant = as.factor(ifelse(ant1 == 1 | ant2to10 == 1 | ant_gt10 == 1 , "1", "0"))) |>

@@ -19,6 +19,9 @@ core_data <- read_csv(here("data/cg1CoreData.csv")) |>
 
 insect_data <- read_csv(here("data/cg1PlantMeasureInsectsForKM.csv")) 
 
+#core_data 
+#mean(data_2004$achCt == data_2004$hdCt , na.rm = TRUE)
+
 
 ### work to join/tidy datasets
 awful_join <- insect_data |>
@@ -34,7 +37,7 @@ data_2004 <- awful_join |>
   mutate(ld = factor(ld) ,
          fl = factor(fl) ,
          hdCt = as.numeric(hdCt) ,
-         achCt = as.numeric(hdCt))
+         achCt = as.numeric(achCt))
 
 data_2005 <- awful_join |>
   filter(measureYr == 2005) |>
@@ -46,7 +49,7 @@ data_2005 <- awful_join |>
   mutate(ld = factor(ld) ,
          fl = factor(fl) ,
          hdCt = as.numeric(hdCt) ,
-         achCt = as.numeric(hdCt))
+         achCt = as.numeric(achCt))
 
 data_2006 <- awful_join |>
   filter(measureYr == 2006) |>
@@ -118,7 +121,7 @@ data_2012 <- awful_join |>
   mutate(ld = factor(ld) ,
          fl = factor(fl))
 
-semi_usable_data <- bind_rows(data_2005 , data_2006 , data_2007 , data_2008 , 
+semi_usable_data <- bind_rows(data_2004 ,data_2005 , data_2006 , data_2007 , data_2008 , 
                           data_2009 , data_2010 , data_2011 , data_2012) |>
   clean_names() 
 #I'm not using data from 2004 because all of its weird

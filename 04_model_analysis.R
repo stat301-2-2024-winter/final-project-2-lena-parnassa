@@ -26,6 +26,8 @@ fit_rf_2 |>
   autoplot(metric = "rmse") +
   theme_minimal()
 
+select_best(fit_rf_1)
+
 fit_knn_1 |>
   autoplot(metric = "rmse") +
   theme_minimal()

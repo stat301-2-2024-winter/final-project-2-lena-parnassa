@@ -1,4 +1,5 @@
-# load packages ----
+rm(list = ls())
+#load packages ----
 library(tidyverse)
 library(tidymodels)
 library(here)
@@ -58,4 +59,26 @@ fl_train |>
   theme_minimal()
 #this interaction could be used as (very) rough estimate of total vegitative mass for a plant
 
+fl_train |>
+  ggplot(aes(x = sqrt_ach_ct )) +
+  geom_density() +
+  facet_wrap(~hd_ct) +
+  theme_minimal()
 
+fl_train |>
+  ggplot(aes(x = sqrt_ach_ct )) +
+  geom_density() +
+  facet_wrap(~flowering_rosette_ct) +
+  theme_minimal()
+
+fl_train |>
+  ggplot(aes(x = sqrt_ach_ct )) +
+  geom_density() +
+  facet_wrap(~yr_planted) +
+  theme_minimal()
+
+fl_train |>
+  ggplot(aes(x = sqrt_ach_ct )) +
+  geom_density() +
+  facet_wrap(~site_of_origin_pedigree) +
+  theme_minimal()

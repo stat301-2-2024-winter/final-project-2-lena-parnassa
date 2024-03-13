@@ -1,51 +1,49 @@
-# Load packages
+rm(list = ls())
+
+# load packages ----
 library(tidyverse)
 library(tidymodels)
 library(here)
+library(glmnet)
 
-# Run background jobs
+# run background jobs
 library(doMC)
 registerDoMC(cores = parallel::detectCores(logical = TRUE))
 
-# Handle common conflicts
+# handle common conflicts
 tidymodels_prefer()
 
 # Load data
 load(here("results/fl_split.rda"))
-load(here("results/tree_recipe.rda"))
+load(here("results/engineered_tree_recipe.rda"))
 
 set.seed(1995)
 
 # Model specifications
-rf_mod_1 <- rand_forest(mode = "regression" ,
+rf_mod_2 <- rand_forest(mode = "regression" ,
                         trees = 1000 ,
                         min_n = tune() ,
                         mtry = tune()) |>
   set_engine("ranger")
 
 # Define workflows
-rf_wkflow_1 <- workflow() |>
-  add_model(rf_mod_1) |>
-  add_recipe(tree_recipe)
+rf_wkflow_2 <- workflow() |>
+  add_model(rf_mod_2) |>
+  add_recipe(engineered_tree_recipe)
 
 # hyperparameter tuning values ----
-rf_parameters <- extract_parameter_set_dials(rf_mod_1) |>
+rf_parameters_2 <- extract_parameter_set_dials(rf_mod_2) |>
   update(mtry = mtry(range = c(1 , 41)))
     # update to go higher
 
-rf_grid <- grid_regular(rf_parameters , levels = 10)
+rf_grid_2 <- grid_regular(rf_parameters_2 , levels = 10)
 
 # Fit workflows/models
-fit_rf_1 <- tune_grid(rf_wkflow_1 ,
+fit_rf_2 <- tune_grid(rf_wkflow_2 ,
                        fl_fold ,
-                       grid = rf_grid ,
+                       grid = rf_grid_2 ,
                        control = control_grid(save_workflow = TRUE))
 
 
 # write out results (fitted/trained workflows) ----
-save(fit_rf_1 , file = here("results/fit_rf_1.rda"))
-
-#analyse results
-fit_rf_1 |>
-  autoplot(metric = "rmse") +
-  theme_minimal()
+save(fit_rf_2 , file = here("results/fit_rf_2.rda"))

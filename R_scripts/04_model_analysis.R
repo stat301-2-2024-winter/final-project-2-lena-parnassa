@@ -1,11 +1,13 @@
+rm(list = ls())
+
 # load packages ----
 library(tidyverse)
 library(tidymodels)
 library(here)
+library(glmnet)
 
 # handle common conflicts
 tidymodels_prefer()
-
 ###load everything in
 load(here("results/fl_split.rda"))
 load(here("results/basic_recipe.rda"))
@@ -28,7 +30,8 @@ fit_rf_2 |>
   autoplot(metric = "rmse") +
   theme_minimal()
 
-select_best(fit_rf_1)
+select_best(fit_rf_1 , metric = "rmse")
+select_best(fit_rf_2 , metric = "rmse")
 
 fit_knn_1 |>
   autoplot(metric = "rmse") +
@@ -37,18 +40,29 @@ fit_knn_2 |>
   autoplot(metric = "rmse") +
   theme_minimal()
 
+select_best(fit_knn_1 , metric = "rmse")
+select_best(fit_knn_2 , metric = "rmse")
+
 fit_bt_1 |>
   autoplot(metric = "rmse") +
   theme_minimal()
 fit_bt_2 |>
   autoplot(metric = "rmse") +
   theme_minimal()
-select_best(fit_bt_2)
 
+select_best(fit_bt_1 , metric = "rmse")
+select_best(fit_bt_2 , metric = "rmse")
 
 fit_enet_1 |>
   autoplot(metric = "rmse") +
   theme_minimal()
+fit_enet_2 |>
+  autoplot(metric = "rmse") +
+  theme_minimal()
+
+select_best(fit_enet_1 , metric = "rmse")
+select_best(fit_enet_2 , metric = "rmse")
+
 #create a workflow set
 model_results <- as_workflow_set(
   lm_basic = fit_lm_1 ,

@@ -1,3 +1,5 @@
+rm(list = ls())
+
 # load packages ----
 library(tidyverse)
 library(tidymodels)
@@ -21,14 +23,14 @@ enet_mod_1 <- linear_reg(penalty = tune(),
                          mixture = tune()) |> 
   set_engine("glmnet")
 
-enet_parameters <- 
+enet_parameters_1 <- 
   parameters(enet_mod_1) |>
   update(mixture = mixture(range = c(0, 1)) ,
          penalty = penalty(range = c(0 ,1)))
          #lower penalties tend to be less-wrong so im going to leave it like that
 
-enet_grid <- 
-  grid_regular(enet_parameters, levels = 5)
+enet_grid_1 <- 
+  grid_regular(enet_parameters_1, levels = 5)
 
 # define workflows ----
 enet_wflow_1 <- workflow() |>
@@ -38,9 +40,8 @@ enet_wflow_1 <- workflow() |>
 # fit workflows/models ----
 fit_enet_1 <- enet_wflow_1 |>
   tune_grid(resamples = fl_fold, 
-            grid = enet_grid ,
+            grid = enet_grid_1 ,
             control = control_grid(save_workflow = TRUE))
 
-enet_wflow_1
 # Save results 
 save(fit_enet_1, file = here("results/fit_enet_1.rda"))

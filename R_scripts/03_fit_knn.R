@@ -1,10 +1,12 @@
+rm(list = ls())
+
 # load packages ----
 library(tidyverse)
 library(tidymodels)
 library(here)
+library(glmnet)
 
-
-#run background jobs
+# run background jobs
 library(doMC)
 registerDoMC(cores = parallel::detectCores(logical = TRUE))
 
@@ -27,9 +29,9 @@ knn_wkflow_1 <- workflow() |>
   add_recipe(tree_recipe)
 
 # hyperparameter tuning values ----
-knn_parameters <- extract_parameter_set_dials(knn_mod_1) 
+knn_parameters_1 <- extract_parameter_set_dials(knn_mod_1) 
 
-knn_grid_1 <- grid_regular(knn_parameters , levels = 10)
+knn_grid_1 <- grid_regular(knn_parameters_1 , levels = 10)
 
 # fit workflows/models ----
 fit_knn_1 <- tune_grid(knn_wkflow_1 ,

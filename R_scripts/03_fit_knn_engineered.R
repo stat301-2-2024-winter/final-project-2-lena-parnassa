@@ -1,10 +1,12 @@
+rm(list = ls())
+
 # load packages ----
 library(tidyverse)
 library(tidymodels)
 library(here)
+library(glmnet)
 
-
-#run background jobs
+# run background jobs
 library(doMC)
 registerDoMC(cores = parallel::detectCores(logical = TRUE))
 

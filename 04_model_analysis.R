@@ -10,6 +10,7 @@ tidymodels_prefer()
 load(here("results/fl_split.rda"))
 load(here("results/basic_recipe.rda"))
 load(here("results/fit_lm_1.rda"))
+load(here("results/fit_lm_2.rda"))
 load(here("results/fit_knn_1.rda"))
 load(here("results/fit_knn_2.rda"))
 load(here("results/fit_bt_1.rda"))
@@ -17,6 +18,7 @@ load(here("results/fit_bt_2.rda"))
 load(here("results/fit_rf_1.rda"))
 load(here("results/fit_rf_2.rda"))
 load(here("results/fit_enet_1.rda"))
+load(here("results/fit_enet_2.rda"))
 
 ### rmse plots
 fit_rf_1 |>
@@ -50,7 +52,9 @@ fit_enet_1 |>
 #create a workflow set
 model_results <- as_workflow_set(
   lm_basic = fit_lm_1 ,
+  lm_engineered = fit_lm_2 ,
   enet_basic = fit_enet_1 ,
+  enet_engineered = fit_enet_2 ,
   knn_basic = fit_knn_1,
   knn_engineered = fit_knn_2 ,
   bt_basic = fit_bt_1 ,

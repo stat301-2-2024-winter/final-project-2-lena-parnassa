@@ -39,3 +39,13 @@ Additionally, while this model is significantly better than my baseline, it does
 
 ### Next Steps
 This model has some promise but it needs work to be a useful prediction tool. Going forward I would recommend incorporating additional data to address the variance that is not explained by insect presence alone. My next steps would be looking at the influence of weather patterns, general growing conditions, and any interventions conducted in the common gardens in a given year, and seeing their influence on achene count before deciding if it would be appropriate to add them to the model.
+
+### References
+Wagenius, S. (2023, November 10)
+*exPt 1 Core*
+[https://echinaceaproject.org/datasets/expt1-core/](https://echinaceaproject.org/datasets/expt1-core/)
+
+Muller, K. (2013, April 16) 
+*exPt1 Aphid Abundance and Plant Damage 2004-2012*
+[https://echinaceaproject.org/datasets/km-aphid-abundance-and-plant-damage-2004-2012/](https://echinaceaproject.org/datasets/km-aphid-abundance-and-plant-damage-2004-2012/)
+

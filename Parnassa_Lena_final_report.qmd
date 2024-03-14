@@ -59,10 +59,9 @@ My goal for this project is to predict the achene count of flowering echinacea p
 
 Having a way to reliably predict achene count is useful as effectively counting achenes is a time and labor intensive process, and proper processing of all of the heads produced in a given year usually isn't completed for a year afterwards.
 
+For this project, I had two datasets that I refrenced. The first being our [core dataset](https://echinaceaproject.org/datasets/expt1-core/), which details a few basic metrics recorded annually for each plant in our largest experimental plot, and the second being a dataset on [insect damage](https://echinaceaproject.org/datasets/km-aphid-abundance-and-plant-damage-2004-2012/) to the plants in the garden in specific observation years. I then filtered out observations of plants that would clearly have a count of zero achenes in a given year. This involved eliminating any plant listed as dead or basal, or that had a flowering head count of zero for a specific year. After these steps, I ended up with a dataset of 2588 observations spanning 43 variables.
 
 ## Data Overview
-I joined two datasets for this project. The first being our [core dataset](https://echinaceaproject.org/datasets/expt1-core/), which details a few basic metrics recorded annually for each plant in our largest experimental plot, and the second being a dataset on [insect damage](https://echinaceaproject.org/datasets/km-aphid-abundance-and-plant-damage-2004-2012/) to the plants in the garden in specific observation years. I then filtered out observations of plants that would clearly have a count of zero achenes in a given year. This involved eliminating any plant listed as dead or basal, or that had a flowering head count of zero for a specific year. After these steps, I ended up with a dataset of 2588 observations spanning 43 variables.
-
 As shown below, the original distribution of achene counts exhibited a strong right skew due to the fact that, while there is a lower limit to achene count at zero, there is hypothetically no upper limit. I used a square root transformation to normalize the distribution, and while the data still shows some skewness, it is much less severe than before.
 ![Original and transformed distribution of achene count](results/distribution_comparison.png)
 It's worth noting that while both distributions are unimodal, they exhibit slight bumps on their right sides. This trend is likely due to the fact that it's somewhat uncommon for an echinacea plant to have more than one flowering head in a given year. The mode of the entire distribution represents the mode of achene count (or square root of achene count) for plants with one flowering head. The first bump after that represents the mode for plants with two flowering heads. The second bump represents plants with three flowering heads, and so on.
@@ -82,7 +81,7 @@ I created two recipes that each had two variants for parametric and non-parametr
 
 The first recipe was very simple and only had five steps. One manually removed any columns that had significant missing values or those that could function as an ID, as the former would not be useful in making a prediction and the latter could bias my results. Another removed any variables that showed no variance, as they wouldn't be useful. A third step was to convert factor variables into a series of binary yes/no terms so they could be handled by my models. The fourth step instructed my model on how to handle missing values in any of the predictors when they appeared. Lastly, the fifth step was to normalize numeric predictors so they would all be on the same scale.
 
-The second recipe incorporated all the features of the first, but with some additions. It transformed a plant's row into a quadratic due to the parabolic correlation observed between row number and achene count. Head count and year planted were converted into factor variables instead of numeric ones due to their small ranges of whole numbers. The two variables indicating the presence of a white fuzzy bug and a white scary bug were merged into one, as the distinction seemed to be subjective. Lastly, I created variables to indicate the presence of any ants or aphids, as the original dataset only showed if specific quantities of ants or aphids were present.
+The second, more complex, recipe incorporated all the features of the first, but with some additions. It transformed a plant's row into a quadratic due to the parabolic correlation observed between row number and achene count. Head count and year planted were converted into factor variables instead of numeric ones due to their small ranges of whole numbers. The two variables indicating the presence of a white fuzzy bug and a white scary bug were merged into one, as the distinction seemed to be subjective. Lastly, I created variables to indicate the presence of any ants or aphids, as the original dataset only showed if specific quantities of ants or aphids were present.
 
 In the version of the second recipe for parametric models, I created interaction terms between related variables. The first interaction was between row and column, considering the plants were grown in a large grid. This interaction could explain potential variances in growing conditions. Another interaction was between minimum and maximum head height. This allowed us to understand the range of head heights. An additional interaction term was created between flowering rosette count and total head count. A higher proportion of heads flowering would suggest a higher reproductive effort, potentially leading to a higher achene count. I also created an interaction between the longest basal leaf and basal leaf count as a proxy for vegetative mass. Lastly, an interaction was created between variables I made to indicate the presence of ants or aphids. Since these were the most common bugs in my dataset, a plant with multiple types of bugs might be more damaged, potentially leading to a lower achene count.
 
@@ -162,23 +161,25 @@ While my random forest model running on a basic recipe had the lowest overall RM
 
 While there is overlap in metrics tuned by random forest and boosted tree models, there was some variance in what proved to be the best values. My random forest model with a basic recipe worked best with a mtry of 42 and min_n of 14. My boosted tree model with a basic recipe worked best with a mtry of 42, min_n of 2, and a learn rate of .309. My random forest model with a complex recipe worked best with a mtry of 42 and min_n of 10.
 
+My tree based models likely performed better overall because they _____
 
-!!!!! explain why tree models won
-
-!!! talk about why basic recipe worked for trees but engineered for parametric models
+In general, my basic recipe worked for best tree based models but complex one worked best for parametric ones. This is likely because _________
 
 ## Final Model Analysis
 After fitting my four best models to the testing dataset, my boosted tree model with a basic recipe performed the best with a RMSE of 2.49. My random forest model with a basic recipe performed slightly worse with a RMSE of 2.51, but not a by a statistically significant amount. The other two models had significantly lower RMSE values. 
 
 While my two best models both roughly equivalent in terms of performance, I chose the boosted tree model as the winner for the sake of having a winner.
 
-I plotted
+I plotted the predicted vs actual values for achene count on transformed and original scale and included the results below:
+![Original and transformed distribution of achene count vs predicction](results/results_plot_bt.png)
 
+My model can give a rough prediction of achene count, however it it's not entirely accurate overall and it tends to overestimate the number of achenes in plants with a low achene count.
 
-This is where you fit your final/winning model to the testing data. Assess the final model’s performance with at least the metric used to determine the winning model, but it is also advisable to use other performance metrics (especially ones that might be easier to communicate/understand). Should include an exploration of predictions vs the true values (graph) or a confusion matrix (table). Remember to consider the scale of your outcome variable at this time — did you transform the target variable? If a transformation was used, then you should consider conducting analyses on both the original and transformed scale of the target variable. Is the model any good? It might be the best of the models you tried, but does the effort of building a predictive model really pay off — is it that much better than a baseline/null model? Were there any features of the model you selected that make it the best (e.g. fits nonlinearity well)?
+Additionally, while this model is significantly better than my baseline, it does produce a RMSE value of 88.1 on the original scale, which in the context of this data is too high to be a useful prediction.
 
 ## Conclusion
-State any conclusions or discoveries/insights. This is a great place for future work, new research questions, and next steps.
+In conclusion, this model has some promise but it needs work to be a useful prediction tool. Going forward I would recommend trying to incorporate additional data to address the variance that is not explained by insect presence. Looking at weather patterns, general growing conditions, and any interventions conducted in the common gardens in a given year would be my next step. But 
+  -ADD MORE THINGS HERE
 
-## References — if needed
+## References
 Any references used should be sited here. This includes but is not limited to where you got your data. There is no “formal” reference guideline but we recommend APA format. Example: Lastname, F. M. (Year, Month Date). Title of page. Site name. URL

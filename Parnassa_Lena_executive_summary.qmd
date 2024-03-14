@@ -26,4 +26,17 @@ citation-location: margin
 
 :::
 
-An executive summary should summarize the key points of the report. It should restate the purpose of the report, highlight the major results, and summarize any conclusions. This report should be concise and clearly written. If you are unsure how to write an Executive Summary there are a lot of resources on the internet! Consider visiting the writing center if you need help.
+### Purpose
+The goal for this project is to predict achene count for flowering echinacea plants in the common gardens based on observed insect damage. 
+
+### Major Results
+My best performing model was a boosted tree model run on a basic recipe. The predicted vs actual values for achene count on transformed and original scale is shown below:
+![Original and transformed distribution of achene count vs predicction](results/results_plot_bt.png)
+
+This model can give a rough prediction of achene count, however it it's not entirely accurate overall and tends to overestimate the number of achenes in plants with a low achene count.
+
+Additionally, while this model is significantly better than my baseline, it does produce a RMSE value of 88.1 on the original scale, which in the context of this data is too high to be a useful prediction.
+
+### Next Steps
+
+An executive summary should summarize the key points of the report. It should restate the purpose of the report, highlight the major results, and summarize any conclusions. This report should be concise and clearly written. 

@@ -19,6 +19,32 @@ from: markdown+emoji
 reference-location: margin
 citation-location: margin
 ---
+```{r , echo = FALSE}
+rm(list = ls())
+
+# load packages ----
+library(tidyverse)
+library(tidymodels)
+library(here)
+library(glmnet)
+library(knitr)
+
+# handle common conflicts
+tidymodels_prefer()
+###load everything in
+load(here("results/fit_lm_1.rda"))
+load(here("results/fit_lm_2.rda"))
+load(here("results/fit_knn_1.rda"))
+load(here("results/fit_knn_2.rda"))
+load(here("results/fit_bt_1.rda"))
+load(here("results/fit_bt_2.rda"))
+load(here("results/fit_rf_1.rda"))
+load(here("results/fit_rf_2.rda"))
+load(here("results/fit_enet_1.rda"))
+load(here("results/fit_enet_2.rda"))
+```
+
+
 ::: {.callout-tip icon=false}
 
 ## Github Repo Link
@@ -27,20 +53,128 @@ citation-location: margin
 :::
 
 ## Introduction
-Introduce your problem(s)/objective(s). Discuss why you are trying to predict this variable (motivation). Why is this useful? Describe the data source(s) you will use to build a predictive model. If you are obtaining information from websites you should site those in your References.
+I'm looking at data from [The Echinacea Project](https://echinaceaproject.org/) at the Chicago Botanic Garden, where I currently work. Our overall goal is to track to health of echinacea plants across the Midwest to use as a proxy of prairie health in the region. 
+
+My goal for this project is to predict the achene count of flowering echinacea plants in a given year. Achenes are small fruits produced by echinacea plants, and a healthy flowering head can easily produce upwards of 100 achenes. 
+
+Having a way to reliably predict achene count is useful as effectively counting achenes is a time and labor intensive process, and proper processing of all of the heads produced in a given year usually isn't completed for a year afterwards.
+
 
 ## Data Overview
-At minimum the response variable should be explored and analyzed in detail. Along with an inspection of the data for missingness and severe class imbalance of categorical data. The previous analyses should be conducted on the entire dataset.
+I joined two datasets for this project. The first being our [core dataset](https://echinaceaproject.org/datasets/expt1-core/), which details a few basic metrics recorded annually for each plant in our largest experimental plot, and the second being a dataset on [insect damage](https://echinaceaproject.org/datasets/km-aphid-abundance-and-plant-damage-2004-2012/) to the plants in the garden in specific observation years. I then filtered out observations of plants that would clearly have a count of zero achenes in a given year. This involved eliminating any plant listed as dead or basal, or that had a flowering head count of zero for a specific year. After these steps, I ended up with a dataset of 2588 observations spanning 43 variables.
 
-Further exploration such as exploring relationships and transformations should be conducted on either a standalone dataset used only for an EDA or some portion of the training dataset from the initial split (can put it back into the training set when building models). Data from the final testing dataset (performance dataset) should not be used for this. This is a key step in feature engineering. A thorough Exploratory Data Analysis might be called for, especially if the data is completely new to you, but make sure it is not completed on the entire dataset! Such an EDA could be put in an appendix and only a short summary could be discussed in this section.
+As shown below, the original distribution of achene counts exhibited a strong right skew due to the fact that, while there is a lower limit to achene count at zero, there is hypothetically no upper limit. I used a square root transformation to normalize the distribution, and while the data still shows some skewness, it is much less severe than before.
+![Original and transformed distribution of achene count](results/distribution_comparison.png)
+It's worth noting that while both distributions are unimodal, they exhibit slight bumps on their right sides. This trend is likely due to the fact that it's somewhat uncommon for an echinacea plant to have more than one flowering head in a given year. The mode of the entire distribution represents the mode of achene count (or square root of achene count) for plants with one flowering head. The first bump after that represents the mode for plants with two flowering heads. The second bump represents plants with three flowering heads, and so on.
+
+The vast majority of variables in my dataset had no missingness whatsoever, with only 6 having any N/A values at all. Of these, 4 had a missingess rate of over 10%: `insects_note`, `insects`. `longest_cauline_lf`, and `basal_rosette_ct`. 
+
+The variable `insects_note` is only used if a plant has an insect found that can't be accurately described by another variable in the dataset so it's a good thing its missingness is that high. Similarly `insects` is a text variable naming any insects found in/on the plant, so if there aren't any insects on a specific plant it will be recorded as N/A.  `longest_cauline_lf`, and `basal_rosette_ct` both relate to vegetative mass, and while it is inconvenient that they are missing at the level they are, there are other multiple other variables in my dataset that work as proxies for vegetative mass.
 
 ## Methods
-Should cover the data splitting procedure and clearly identify what type of prediction problem it is. State and describe the model types you will be fitting. Describe any parameters that will be tuned. Describe what recipes will be used. Describe the resampling technique used. In some cases an extended discussion about recipe variations might be useful. Especially if students are using recipe variation to try and explore the predictive importance of certain variables. Explain the metric that will be used to compare and ultimately used to select a final model.
+### Data Splitting and Resampling
+I split my data to use 70% for training my models and 30% to test them. I found this proportion worked best for me because my dataset is relatively small; I wanted to have a bit more data to properly test my models, while also ensuring I still have enough data to properly train them. 
 
-## Model Building & Selection
-Should reiterate the metric that will be used to compare models and determine which will be the final/winning model. Include a table of the best performing model results. Review and analysis of tuning parameters should happen here. Should further tuning be explored? Or how should tuning be adjusted when fitting data like this in the future. This would be a good section to describe what the best parameters were for each model type. Could include a discussion comparing any systematic differences in performance between model types or recipes. If variations in recipes were used to explore predictive importance of certain variables, then it should be discussed here. The section will likely end with the selection of the final/winning model (provide your reasoning). Was it surprising or not surprising that this particular model won? Explain.
+When making this split, I stratified sampling to ensure both my training and testing datasets were representative of a wide range of potential achene counts. Additionally, I performed a V-fold cross validation with 5 folds and 3 repeats to reduce the risk of overfitting by giving my model many subsets of data to train on. While a larger number of folds and repeats would be better suited for a dataset of this size,  the computer I ran my models on had limited computational power and I wanted to ensure that it was able to handle running them.
+
+### Recipe Building
+I created two recipes that each had two variants for parametric and non-parametric models.
+
+The first recipe was very simple and only had five steps. One manually removed any columns that had significant missing values or those that could function as an ID, as the former would not be useful in making a prediction and the latter could bias my results. Another removed any variables that showed no variance, as they wouldn't be useful. A third step was to convert factor variables into a series of binary yes/no terms so they could be handled by my models. The fourth step instructed my model on how to handle missing values in any of the predictors when they appeared. Lastly, the fifth step was to normalize numeric predictors so they would all be on the same scale.
+
+The second recipe incorporated all the features of the first, but with some additions. It transformed a plant's row into a quadratic due to the parabolic correlation observed between row number and achene count. Head count and year planted were converted into factor variables instead of numeric ones due to their small ranges of whole numbers. The two variables indicating the presence of a white fuzzy bug and a white scary bug were merged into one, as the distinction seemed to be subjective. Lastly, I created variables to indicate the presence of any ants or aphids, as the original dataset only showed if specific quantities of ants or aphids were present.
+
+In the version of the second recipe for parametric models, I created interaction terms between related variables. The first interaction was between row and column, considering the plants were grown in a large grid. This interaction could explain potential variances in growing conditions. Another interaction was between minimum and maximum head height. This allowed us to understand the range of head heights. An additional interaction term was created between flowering rosette count and total head count. A higher proportion of heads flowering would suggest a higher reproductive effort, potentially leading to a higher achene count. I also created an interaction between the longest basal leaf and basal leaf count as a proxy for vegetative mass. Lastly, an interaction was created between variables I made to indicate the presence of ants or aphids. Since these were the most common bugs in my dataset, a plant with multiple types of bugs might be more damaged, potentially leading to a lower achene count.
+
+### Model Types and Tuning
+I fit five different types of models for this project: a linear regression, elastic net, KNN, random forest, and boosted tree. Each was be ran twice, once on my more simple recipe, and a second on my more complex recipe. 
+
+As my training dataset has five folds and three repeats, every model is trained and evaluated five times, each time using a different fold as the validation set and the remaining folds as the training set. This proccess is then repeated two more times
+
+As this is a regression model, I plan on using RMSE as my assessment metric because my outcome variable has the potential for large outliers and RMSE will be better at handling them than $R^2$ or MAE.  
+
+Note: while all of these models are actually predicting the square root of achene count, I will reference achene count as my prediction variable going forward, as that is the information I actually hope to gain.
+
+#### Linear Regression
+My linear regression model is the simplest, and serves as the baseline I will compare my other models to. It works by assigning a coefficient to each predictor that is interpreted as either a slope or intercept. This model runs on the parametric version of my recipes. 
+
+#### Elastic Net
+My elastic net model is similar to my linear regression, but it can also regularize data by eliminating variables with no correlation to the outcome and shrink the coefficients of those with little correlation. It can also better handle collinearity, which occurs when two or more variables are highly correlated with each other, which is the case in my dataset. 
+
+There are two variables tuned in my elastic net regressions: mixture and penalty. Mixture determines if the model will function more like a lasso or ridge regression, and penalty determines how much the model can change coefficients by.
+
+This model runs on the parametric version of my recipes.
+
+#### KNN
+My KNN model predicts the achene count of a plant by looking at which plants are most similar to it and using their achene counts as a guide. 
+
+The only metric tuned in this model is neighbors, which determines the number of plants that will be considered.
+
+This model runs on the nonparametric version of my recipes.
+
+#### Random Forest
+My random forest model works by creating a series of decision trees to predict achene count and combining them into a final model.
+
+The two metrics tuned are mtry, which determines number of predictors sampled at each split for the tree models, and min_n, which determines the minimum number of data points needed for a node in a decision tree to be split further.
+
+This model runs on the nonparametric version of my recipes.
+
+#### Boosted Tree
+My boosted tree model works by creating a series of decision trees where each tree learns from the results of the previous tree.
+
+There are three metrics tuned in this model, mtry, and min_n, which serve the same roles as they do in my random forest model, and learn rate, which determines how mucch information is gained from the previously made decision trees.
+
+This model runs on the nonparametric version of my recipes.
+
+
+## Model Selection
+After running my models on both recipes, I selected the model tuning parameters that led to a model having the lowest RMSE value for its combination of model type and recipe and generated the following table:
+
+```{r , echo=FALSE}
+model_results <- as_workflow_set(
+  lm_basic = fit_lm_1 ,
+  lm_engineered = fit_lm_2 ,
+  enet_basic = fit_enet_1 ,
+  enet_engineered = fit_enet_2 ,
+  knn_basic = fit_knn_1,
+  knn_engineered = fit_knn_2 ,
+  bt_basic = fit_bt_1 ,
+  bt_engineered = fit_bt_2 ,
+  rf_basic = fit_rf_1 ,
+  rf_engineered = fit_rf_2
+)
+
+
+
+model_results |>
+  collect_metrics() |>
+  filter(.metric == "rmse") |>
+  slice_min(mean , by = wflow_id) |>
+  arrange(mean) |>
+  select("Model Type" = wflow_id ,
+         "RMSE" = mean ,
+         "Standard Error" = std_err ,
+         "Number Computations" = n) |>
+knitr::kable(digits = c(NA , 2 , 4 , 0))
+```
+
+While my random forest model running on a basic recipe had the lowest overall RMSE, the standard error values mean that the boosted tree model running on a basic recipe, random forest model running on a complex recipe, and linear regression running on a complex recipe are not significantly different in terms of performance. As such, I chose to fit all of these models on my testing dataset and select the winning model based on how they performed there.
+
+While there is overlap in metrics tuned by random forest and boosted tree models, there was some variance in what proved to be the best values. My random forest model with a basic recipe worked best with a mtry of 42 and min_n of 14. My boosted tree model with a basic recipe worked best with a mtry of 42, min_n of 2, and a learn rate of .309. My random forest model with a complex recipe worked best with a mtry of 42 and min_n of 10.
+
+
+!!!!! explain why tree models won
+
+!!! talk about why basic recipe worked for trees but engineered for parametric models
 
 ## Final Model Analysis
+After fitting my four best models to the testing dataset, my boosted tree model with a basic recipe performed the best with a RMSE of 2.49. My random forest model with a basic recipe performed slightly worse with a RMSE of 2.51, but not a by a statistically significant amount. The other two models had significantly lower RMSE values. 
+
+While my two best models both roughly equivalent in terms of performance, I chose the boosted tree model as the winner for the sake of having a winner.
+
+I plotted
+
+
 This is where you fit your final/winning model to the testing data. Assess the final model’s performance with at least the metric used to determine the winning model, but it is also advisable to use other performance metrics (especially ones that might be easier to communicate/understand). Should include an exploration of predictions vs the true values (graph) or a confusion matrix (table). Remember to consider the scale of your outcome variable at this time — did you transform the target variable? If a transformation was used, then you should consider conducting analyses on both the original and transformed scale of the target variable. Is the model any good? It might be the best of the models you tried, but does the effort of building a predictive model really pay off — is it that much better than a baseline/null model? Were there any features of the model you selected that make it the best (e.g. fits nonlinearity well)?
 
 ## Conclusion
@@ -48,12 +182,3 @@ State any conclusions or discoveries/insights. This is a great place for future 
 
 ## References — if needed
 Any references used should be sited here. This includes but is not limited to where you got your data. There is no “formal” reference guideline but we recommend APA format. Example: Lastname, F. M. (Year, Month Date). Title of page. Site name. URL
-
-## Appendix: technical info — if needed
-A place to share complex and important technical steps that may highly impact explorations, but the details are too technical to share in main body of the report.
-
-## Appendix: EDA — if needed
-A place to place a more thorough EDA, if needed. This should not include any data from the testing dataset!
-
-## Appendix: extras — if needed
-Add as many appendices as needed.

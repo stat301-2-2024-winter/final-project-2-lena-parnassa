@@ -77,6 +77,8 @@ model_results <- as_workflow_set(
   rf_engineered = fit_rf_2
 )
 
+
+
 model_results |>
   collect_metrics() |>
   filter(.metric == "rmse") |>
@@ -86,6 +88,18 @@ model_results |>
          "RMSE" = mean ,
          "Standard Error" = std_err ,
          "Num Computations" = n) |>
-knitr::kable(digits = c(NA , 2 , 4 , 0))
+knitr::kable(digits = c(NA , 3 , 4 , 0))
 
+
+model_results |>
+  collect_metrics() |>
+  filter(.metric == "rmse")|>
+  slice_min(mean, by = wflow_id) |>
+  arrange(mean) |>
+  mutate(wflow_id = factor(wflow_id, levels = unique(wflow_id))) |>
+  ggplot(aes(x = wflow_id, y = mean)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = (mean - std_err), ymax = (mean + std_err)) , width = .2) + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
 save(model_results , file = here("results/model_results.rda"))

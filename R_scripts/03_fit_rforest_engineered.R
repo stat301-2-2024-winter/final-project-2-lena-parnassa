@@ -33,8 +33,7 @@ rf_wkflow_2 <- workflow() |>
 
 # hyperparameter tuning values ----
 rf_parameters_2 <- extract_parameter_set_dials(rf_mod_2) |>
-  update(mtry = mtry(range = c(1 , 41)))
-    # update to go higher
+  update(mtry = mtry(range = c(1 , 42)))
 
 rf_grid_2 <- grid_regular(rf_parameters_2 , levels = 10)
 

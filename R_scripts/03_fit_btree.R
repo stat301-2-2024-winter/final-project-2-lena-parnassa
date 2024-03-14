@@ -38,7 +38,6 @@ bt_wkflow_1 <- workflow() |>
 bt_parameters <- extract_parameter_set_dials(bt_mod_1) |>
   update(mtry = mtry(range = c(1 , 42)) ,
          learn_rate = learn_rate(c(-1, -0.02)))
-  #update range for learn rate, higher performs better
 
 bt_grid <- grid_regular(bt_parameters , levels = 5)
 

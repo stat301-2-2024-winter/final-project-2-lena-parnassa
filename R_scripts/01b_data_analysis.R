@@ -24,21 +24,25 @@ fl_train |>
   geom_bar() +
   facet_wrap(~wht_fuzzy) +
   theme_minimal()
-#shows no overlap
+  #shows no overlap
 
 fl_train |>
   ggplot(aes(x = pos , y = sqrt_ach_ct)) +
   geom_point() +
-  geom_smooth()
+  geom_smooth(method = "lm" ,
+              formula = y ~ poly(x , df = 2) ,
+              se = FALSE) +
   theme_minimal()
   #slight parabolic relationship
 
 fl_train |>
   ggplot(aes(x = row , y = sqrt_ach_ct)) +
   geom_point() +
-  geom_smooth()
+  geom_smooth(method = "lm" ,
+              formula = y ~ poly(x , df = 2) ,
+              se = FALSE)
   theme_minimal()
-  #slight linear relationship
+  #v weak parabolic relationship
 
 fl_train |>
   ggplot(aes(x = min_hd_height , y = max_hd_height)) +

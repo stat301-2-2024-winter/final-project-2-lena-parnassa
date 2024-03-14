@@ -36,7 +36,6 @@ engineered_recipe <- recipe(sqrt_ach_ct ~ . , data = fl_train) |>
   step_interact(terms = ~ pos:row) |>
   step_poly(row, degree = 2) |>
   #   #create coordinate grid
-  #     #idk why i need the starts_with() but my code fails if i dont have it
   step_interact(terms = ~ min_hd_height:max_hd_height) |>
     #total range of head heights
   step_interact(terms = ~ flowering_rosette_ct:hd_ct) |>
@@ -58,7 +57,7 @@ engineered_recipe <- recipe(sqrt_ach_ct ~ . , data = fl_train) |>
   step_mutate(ants = as.factor(ifelse(ant1 == 1 | ant2to10 == 1 | ant_gt10 == 1 , "1", "0"))) |>
   step_mutate(aphids = as.factor(ifelse(aphid1 == 1 | aphid2to10 == 1 | aphid11to80 == 1 |aphid_gt80 == 1 , "1", "0"))) |>
     #i think these two make sense
-  #step_interact(terms = ~ ants:starts_with("aphids")) |>
+  step_interact(terms = ~ ants:aphids) |>
   step_dummy(all_nominal_predictors()) |>
   step_zv(all_predictors()) |>
   step_impute_knn(all_predictors()) |>

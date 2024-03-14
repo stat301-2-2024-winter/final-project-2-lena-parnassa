@@ -19,8 +19,6 @@ should measure_year be num, factor, or date???
 
 changes to make in feature engineered recipe: step interact between pos + row, year planted as factor
 
-UPDATE READMES
-
 wyatt has started singing its me hi im the problem its me whenever i vocalize that i fucked something up
 
 running my rf model on my laptop makes it overheat for longer than my hot rice pack will stay warm
@@ -36,4 +34,7 @@ why are all my step_interactions failing???????
                             -i figured it out!!!!!
                                 -its me hi im the problem its me
                                     - i want a refund from that psychologist that said i didn't have dyslexia when i was like 5
-
+                                    
+UPDATE READMES
+ADD TABLE CAPTIONS
+EXPLAIN TUNING RANGES

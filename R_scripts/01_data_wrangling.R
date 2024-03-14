@@ -6,6 +6,7 @@ library(tidymodels)
 library(here)
 library(janitor)
 library(forcats)
+library(patchwork)
 
 # handle common conflicts
 tidymodels_prefer()
@@ -178,11 +179,25 @@ skimr::skim(fl_data)
 #no_rosette <- fl_data |>
   #filter(flowering_rosette_ct == 0)
 
-fl_data |>
-  ggplot(aes(sqrt(ach_ct))) +
+ach_density_plot <- fl_data |>
+  ggplot(aes(ach_ct)) +
   geom_density() +
-  theme_minimal()
+  theme_minimal() +
+  ggtitle("Original Distribution of Achene Count") +
+  xlab("Achene Count") +
+  ylab("Proportion of Data")
 
+sqrt_ach_density_plot <- fl_data |>
+  ggplot(aes(sqrt_ach_ct)) +
+  geom_density() +
+  theme_minimal() +
+  ggtitle("Transformed Distribution of Achene Count") +
+  xlab("Square Root of Achene Count") +
+  ylab(NULL)
+
+distribution_comparison <- (ach_density_plot + sqrt_ach_density_plot)
+
+distribution_comparison
 
 set.seed(1995)
 #initial split:
@@ -214,4 +229,4 @@ write_csv(fl_data , here("data/fl_data.csv"))
 write_rds(fl_split , "data/fl_split.rda")
 write_rds(fl_train , "data/fl_training.rda")
 write_rds(fl_test , "data/fl_testing.rda")
-
+ggsave("results/distribution_comparison.png", plot = distribution_comparison, width = 10, height = 3)

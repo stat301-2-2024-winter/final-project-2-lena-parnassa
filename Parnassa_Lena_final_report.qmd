@@ -62,8 +62,9 @@ Having a way to reliably predict achene count is useful as effectively counting 
 For this project, I had two datasets that I refrenced. The first being our [core dataset](https://echinaceaproject.org/datasets/expt1-core/), which details a few basic metrics recorded annually for each plant in our largest experimental plot, and the second being a dataset on [insect damage](https://echinaceaproject.org/datasets/km-aphid-abundance-and-plant-damage-2004-2012/) to the plants in the garden in specific observation years. I then filtered out observations of plants that would clearly have a count of zero achenes in a given year. This involved eliminating any plant listed as dead or basal, or that had a flowering head count of zero for a specific year. After these steps, I ended up with a dataset of 2588 observations spanning 43 variables.
 
 ## Data Overview
-As shown below, the original distribution of achene counts exhibited a strong right skew due to the fact that, while there is a lower limit to achene count at zero, there is hypothetically no upper limit. I used a square root transformation to normalize the distribution, and while the data still shows some skewness, it is much less severe than before.
-![Original and transformed distribution of achene count](results/distribution_comparison.png)
+As shown below, the original distribution of achene counts exhibited a strong right skew due to the fact that, while there is a lower limit to achene count at zero, there is hypothetically no upper limit. I used a square root transformation to normalize the distribution, and while the data still shows some skewness, said skewness is much less severe than before.
+![Original and transformed distribution of achene count](results/distribution_comparison.png)*Figure 1: Original and transformed distribution of achene count*
+
 It's worth noting that while both distributions are unimodal, they exhibit slight bumps on their right sides. This trend is likely due to the fact that it's somewhat uncommon for an echinacea plant to have more than one flowering head in a given year. The mode of the entire distribution represents the mode of achene count (or square root of achene count) for plants with one flowering head. The first bump after that represents the mode for plants with two flowering heads. The second bump represents plants with three flowering heads, and so on.
 
 The vast majority of variables in my dataset had no missingness whatsoever, with only 6 having any N/A values at all. Of these, 4 had a missingess rate of over 10%: `insects_note`, `insects`. `longest_cauline_lf`, and `basal_rosette_ct`. 
@@ -156,30 +157,43 @@ model_results |>
          "Number Computations" = n) |>
 knitr::kable(digits = c(NA , 2 , 4 , 0))
 ```
+*Table 1: RMSE and standard error values for various model types*
+
 
 While my random forest model running on a basic recipe had the lowest overall RMSE, the standard error values mean that the boosted tree model running on a basic recipe, random forest model running on a complex recipe, and linear regression running on a complex recipe are not significantly different in terms of performance. As such, I chose to fit all of these models on my testing dataset and select the winning model based on how they performed there.
 
 While there is overlap in metrics tuned by random forest and boosted tree models, there was some variance in what proved to be the best values. My random forest model with a basic recipe worked best with a mtry of 42 and min_n of 14. My boosted tree model with a basic recipe worked best with a mtry of 42, min_n of 2, and a learn rate of .309. My random forest model with a complex recipe worked best with a mtry of 42 and min_n of 10.
 
-My tree based models likely performed better overall because they _____
+My tree based models likely performed better overall because they are able to effectively analyze the interactions between different variables, and the data is somewhat messy without many variables that are strong predictors for achene count on their own.
 
-In general, my basic recipe worked for best tree based models but complex one worked best for parametric ones. This is likely because _________
+In general, my basic recipe worked for best tree based models but complex one worked best for parametric ones. This is because the my complex recipe allowed my parametric models to analyze some of the more important relationships in the dataset. However its likely that none of the other changes I made in the more complex recipe were useful as the nonparametric models that could already analyze these interactions did not perform any better.
 
 ## Final Model Analysis
-After fitting my four best models to the testing dataset, my boosted tree model with a basic recipe performed the best with a RMSE of 2.49. My random forest model with a basic recipe performed slightly worse with a RMSE of 2.51, but not a by a statistically significant amount. The other two models had significantly lower RMSE values. 
+After fitting my four best models to the testing dataset, my boosted tree model with a basic recipe performed the best with a RMSE of 2.49 on the transformed scale. My random forest model with a basic recipe performed slightly worse with a RMSE of 2.51, but not a by a statistically significant amount. The other two models had significantly lower RMSE values. 
 
-While my two best models both roughly equivalent in terms of performance, I chose the boosted tree model as the winner for the sake of having a winner.
+While my two best models both roughly equivalent in terms of performance, for the sake of having a winner, I chose the boosted tree model as its RMSE is slightly lower.
 
 I plotted the predicted vs actual values for achene count on transformed and original scale and included the results below:
-![Original and transformed distribution of achene count vs predicction](results/results_plot_bt.png)
+![Scatterplots showing predicted vs. actual achene counts on transformed and original scale](results/results_plot_bt.png)*Figure 2: Scatterplots showing predicted vs. actual achene counts on transformed and original scale*
 
 My model can give a rough prediction of achene count, however it it's not entirely accurate overall and it tends to overestimate the number of achenes in plants with a low achene count.
 
 Additionally, while this model is significantly better than my baseline, it does produce a RMSE value of 88.1 on the original scale, which in the context of this data is too high to be a useful prediction.
 
 ## Conclusion
-In conclusion, this model has some promise but it needs work to be a useful prediction tool. Going forward I would recommend trying to incorporate additional data to address the variance that is not explained by insect presence. Looking at weather patterns, general growing conditions, and any interventions conducted in the common gardens in a given year would be my next step. But 
-  -ADD MORE THINGS HERE
+In conclusion, this model has some promise but it needs work to be a useful prediction tool. Going forward I would recommend trying to incorporate additional data to address the variance that is not explained by insect presence. My next steps would be looking at the influence of weather patterns, general growing conditions, and any interventions conducted in the common gardens in a given year and seeing their influence on achene count before deciding if it would be appropriate to add them to the model.
 
 ## References
-Any references used should be sited here. This includes but is not limited to where you got your data. There is no “formal” reference guideline but we recommend APA format. Example: Lastname, F. M. (Year, Month Date). Title of page. Site name. URL
+Wagenius, S. (2023, November 10)
+*exPt 1 Core*
+[https://echinaceaproject.org/datasets/expt1-core/](https://echinaceaproject.org/datasets/expt1-core/)
+
+Muller, K. (2013, April 16) 
+*exPt1 Aphid Abundance and Plant Damage 2004-2012*
+[https://echinaceaproject.org/datasets/km-aphid-abundance-and-plant-damage-2004-2012/](https://echinaceaproject.org/datasets/km-aphid-abundance-and-plant-damage-2004-2012/)
+
+
+
+
+
+

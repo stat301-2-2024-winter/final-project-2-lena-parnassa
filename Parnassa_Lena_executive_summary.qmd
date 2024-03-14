@@ -27,16 +27,15 @@ citation-location: margin
 :::
 
 ### Purpose
-The goal for this project is to predict achene count for flowering echinacea plants in the common gardens based on observed insect damage. 
+The goal for this project is to predict achene count for flowering echinacea plants in the common gardens based on observed insect damage.
 
 ### Major Results
 My best performing model was a boosted tree model run on a basic recipe. The predicted vs actual values for achene count on transformed and original scale is shown below:
-![Original and transformed distribution of achene count vs predicction](results/results_plot_bt.png)
+![Scatterplots showing predicted vs. actual achene counts on transformed and original scale](results/results_plot_bt.png)*Figure 2: Scatterplots showing predicted vs. actual achene counts on transformed and original scale*
 
 This model can give a rough prediction of achene count, however it it's not entirely accurate overall and tends to overestimate the number of achenes in plants with a low achene count.
 
 Additionally, while this model is significantly better than my baseline, it does produce a RMSE value of 88.1 on the original scale, which in the context of this data is too high to be a useful prediction.
 
 ### Next Steps
-
-An executive summary should summarize the key points of the report. It should restate the purpose of the report, highlight the major results, and summarize any conclusions. This report should be concise and clearly written. 
+This model has some promise but it needs work to be a useful prediction tool. Going forward I would recommend incorporating additional data to address the variance that is not explained by insect presence alone. My next steps would be looking at the influence of weather patterns, general growing conditions, and any interventions conducted in the common gardens in a given year, and seeing their influence on achene count before deciding if it would be appropriate to add them to the model.
